@@ -1,6 +1,8 @@
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,9 +14,12 @@ namespace WaypointGen
     {
         public ConfigurationSettings? configSettings;
         List<WaypointPath> waypoints = [];
+        Dictionary<int, List<CreatureInfo>> creatureInfoMap = new Dictionary<int, List<CreatureInfo>>();
+
         WaypointPath? selectedWaypointPath = null;
         Database database = Database.Instance();
-        Thread dataThread;
+        Thread? dataThread;
+        String SelectedFileName = "";
 
         public MainForm()
         {
@@ -53,7 +58,7 @@ namespace WaypointGen
             openFileDialog.CheckPathExists = true;
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                activityStatusLabel.Text = "Loading " + openFileDialog.FileName + "...";
+                SelectedFileName = openFileDialog.FileName;
                 Stream ifStream = openFileDialog.OpenFile();
                 dataThread = new Thread(parseSniffedData);
                 dataThread.Start(ifStream);
@@ -62,7 +67,8 @@ namespace WaypointGen
 
         private void saveSQLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            ExportSQL exportSQL = new ExportSQL(this.waypoints);
+            exportSQL.ShowDialog();
         }
 
         private void exiToolStripMenuItem_Click(object sender, EventArgs e)
@@ -77,6 +83,47 @@ namespace WaypointGen
             {
                 return;
             }
+
+            if (configSettings!.MySQLEnabled)
+            {
+                activityStatusLabel.Text = "Loading creature data from database...";
+                Database db = Database.Instance();
+                if (!db.IsConnect())
+                {
+                    MessageBox.Show("Failed to talk to the database");
+                    return;
+                }
+                var cmd = new MySqlCommand("SELECT guid, id, position_x, position_y, position_z FROM creature", db.Connection);
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Int64 guid = reader.GetInt64(0);
+                    int id = reader.GetInt32(1);
+                    double pos_x = reader.GetDouble(2);
+                    double pos_y = reader.GetDouble(3);
+                    double pos_z = reader.GetDouble(4);
+                    var info = new CreatureInfo()
+                    {
+                        CreatureGuid = guid,
+                        CreatureId = id,
+                        PosX = pos_x,
+                        PosY = pos_y,
+                        PosZ = pos_z
+                    };
+
+                    if (creatureInfoMap.ContainsKey(id))
+                    {
+                        creatureInfoMap[id].Add(info);
+                    }
+                    else
+                    {
+                        creatureInfoMap.Add(id, new List<CreatureInfo>([info]));
+                    }
+                }
+                reader.Close();
+            }
+
+            activityStatusLabel.Text = "Parsing paths from " + SelectedFileName + "...";
 
             Regex positionRe = new Regex(@"^Position: X: (.+?) Y: (.+?) Z: (.+?)( O:.+)?$");
             Regex pointsRe = new Regex(@"(Points|Waypoints): X: (.+?) Y: (.+?) Z: (.+?)$");
@@ -110,23 +157,38 @@ namespace WaypointGen
                         inWaypoint = false;
                         if (waypointPath != null)
                         {
+                            if (waypointPath.nodes.Count <= 2)
+                            {
+                                continue;
+                            }
                             Console.WriteLine("Path: " + waypointPath.PathId + " for " + waypointPath.creatureId + " (" + waypointPath.creatureName + ") Length: " + waypointPath.nodes.Count);
                             if (configSettings!.MySQLEnabled)
                             {
-                                int mobGuid = Database.Instance().FindBestMatchMob(waypointPath.creatureId, waypointPath.mapId, waypointPath.x, waypointPath.y);
-                                waypointPath.bestMatchGuid = mobGuid;
+                                //int mobGuid = Database.Instance().FindBestMatchMob(waypointPath.creatureId, waypointPath.mapId, waypointPath.x, waypointPath.y);
+
+                                if (creatureInfoMap.ContainsKey(waypointPath.creatureId))
+                                {
+                                    List<CreatureInfo> creatures = creatureInfoMap[waypointPath.creatureId];
+
+                                    CreatureInfo? closestCreature = creatures.Find(n => waypointPath.x + 5 > n.PosX && n.PosX < waypointPath.x - 5 && waypointPath.y + 5 > n.PosY && n.PosY < waypointPath.y - 5);
+
+                                    if (closestCreature != null)
+                                    {
+                                        waypointPath.bestMatchGuid = closestCreature.CreatureGuid;
+                                    }
+                                }
                             }
 
-                            DataGridViewRow row = (DataGridViewRow)waypointsGrid.RowTemplate.Clone();
+                            DataGridViewRow row = new DataGridViewRow();
                             row.CreateCells(waypointsGrid, waypointPath.PathId, waypointPath.creatureName + " (" + waypointPath.creatureId + ")", waypointPath.nodes.Count);
 
+                            int idx = waypoints.Count;
+                            waypoints.Add(waypointPath);
                             Action safeAddRow = delegate
                             {
-                                waypointsGrid.Rows.Add(row);
+                                waypointsGrid.Rows.Insert(idx, row);
                             };
                             waypointsGrid.Invoke(safeAddRow);
-
-                            waypoints.Add(waypointPath);
                         }
                         waypointPath = null;
                         continue;
@@ -200,6 +262,10 @@ namespace WaypointGen
 
         private void waypointsGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
             selectedWaypointPath = waypoints[e.RowIndex];
 
             if (selectedWaypointPath != null)
@@ -268,7 +334,7 @@ namespace WaypointGen
         public int mapId;
         public List<WaypointNode> nodes;
         public double x, y, z;
-        public int bestMatchGuid = -1;
+        public Int64 bestMatchGuid = -1;
 
         public WaypointPath()
         {
@@ -324,7 +390,7 @@ namespace WaypointGen
                 }
             }
 
-            sqlStatement += string.Format("-- .go {0} {1} {2}", this.x, this.y, this.z);
+            sqlStatement += string.Format(Environment.NewLine + "-- .go {0} {1} {2}", this.x, this.y, this.z);
             return sqlStatement;
         }
 
@@ -372,5 +438,12 @@ namespace WaypointGen
         {
             return string.Format("({0}, {1}, {2}, {3}, {4}, NULL, 0)", PathId, this.NodeId, this.x, this.y, this.z);
         }
+    }
+
+    public class CreatureInfo
+    {
+        public Int64 CreatureGuid;
+        public int CreatureId;
+        public double PosX, PosY, PosZ;
     }
 }

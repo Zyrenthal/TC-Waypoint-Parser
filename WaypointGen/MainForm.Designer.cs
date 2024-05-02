@@ -1,4 +1,5 @@
-﻿namespace WaypointGen
+﻿
+namespace WaypointGen
 {
     partial class MainForm
     {
@@ -148,6 +149,7 @@
             waypointsGrid.Size = new Size(429, 628);
             waypointsGrid.TabIndex = 2;
             waypointsGrid.CellClick += waypointsGrid_CellContentClick;
+            waypointsGrid.RowEnter += waypointsGrid_CellContentClick;
             // 
             // PathId
             // 
@@ -276,7 +278,7 @@
             pathMapinfo.TabIndex = 10;
             pathMapinfo.Text = "N/A";
             // 
-            // Form1
+            // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -294,7 +296,7 @@
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
             MinimumSize = new Size(1169, 735);
-            Name = "Form1";
+            Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "TC Waypoint Parser";
             FormClosed += Form1_FormClosed;

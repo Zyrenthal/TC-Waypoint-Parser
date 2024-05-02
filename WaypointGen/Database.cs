@@ -19,7 +19,7 @@ namespace WaypointGen
 
         public MySqlConnection Connection { get; set; }
 
-        private static Database _instance = null;
+        private static Database? _instance;
         public static Database Instance()
         {
             if (_instance == null)

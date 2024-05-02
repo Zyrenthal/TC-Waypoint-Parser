@@ -30,15 +30,13 @@
         {
             exportBtn = new Button();
             exportProgressBar = new ProgressBar();
-            radioExportWithMatch = new RadioButton();
-            radioExportWithoutMatch = new RadioButton();
-            radioExportAll = new RadioButton();
+            checkboxExportUnknownGuid = new CheckBox();
             SuspendLayout();
             // 
             // exportBtn
             // 
             exportBtn.Dock = DockStyle.Bottom;
-            exportBtn.Location = new Point(0, 162);
+            exportBtn.Location = new Point(0, 83);
             exportBtn.Name = "exportBtn";
             exportBtn.Size = new Size(257, 45);
             exportBtn.TabIndex = 4;
@@ -49,52 +47,27 @@
             // exportProgressBar
             // 
             exportProgressBar.Dock = DockStyle.Bottom;
-            exportProgressBar.Location = new Point(0, 133);
+            exportProgressBar.Location = new Point(0, 54);
             exportProgressBar.Name = "exportProgressBar";
             exportProgressBar.Size = new Size(257, 29);
             exportProgressBar.TabIndex = 2;
             // 
-            // radioExportWithMatch
+            // checkboxExportUnknownGuid
             // 
-            radioExportWithMatch.AutoSize = true;
-            radioExportWithMatch.Location = new Point(12, 12);
-            radioExportWithMatch.Name = "radioExportWithMatch";
-            radioExportWithMatch.Size = new Size(187, 24);
-            radioExportWithMatch.TabIndex = 1;
-            radioExportWithMatch.TabStop = true;
-            radioExportWithMatch.Text = "Export With Match Only";
-            radioExportWithMatch.UseVisualStyleBackColor = true;
-            // 
-            // radioExportWithoutMatch
-            // 
-            radioExportWithoutMatch.AutoSize = true;
-            radioExportWithoutMatch.Location = new Point(12, 42);
-            radioExportWithoutMatch.Name = "radioExportWithoutMatch";
-            radioExportWithoutMatch.Size = new Size(209, 24);
-            radioExportWithoutMatch.TabIndex = 2;
-            radioExportWithoutMatch.TabStop = true;
-            radioExportWithoutMatch.Text = "Export Without Match Only";
-            radioExportWithoutMatch.UseVisualStyleBackColor = true;
-            // 
-            // radioExportAll
-            // 
-            radioExportAll.AutoSize = true;
-            radioExportAll.Location = new Point(12, 72);
-            radioExportAll.Name = "radioExportAll";
-            radioExportAll.Size = new Size(95, 24);
-            radioExportAll.TabIndex = 3;
-            radioExportAll.TabStop = true;
-            radioExportAll.Text = "Export All";
-            radioExportAll.UseVisualStyleBackColor = true;
+            checkboxExportUnknownGuid.AutoSize = true;
+            checkboxExportUnknownGuid.Location = new Point(12, 12);
+            checkboxExportUnknownGuid.Name = "checkboxExportUnknownGuid";
+            checkboxExportUnknownGuid.Size = new Size(178, 24);
+            checkboxExportUnknownGuid.TabIndex = 5;
+            checkboxExportUnknownGuid.Text = "Export Unknown GUID";
+            checkboxExportUnknownGuid.UseVisualStyleBackColor = true;
             // 
             // ExportSQL
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(257, 207);
-            Controls.Add(radioExportAll);
-            Controls.Add(radioExportWithoutMatch);
-            Controls.Add(radioExportWithMatch);
+            ClientSize = new Size(257, 128);
+            Controls.Add(checkboxExportUnknownGuid);
             Controls.Add(exportProgressBar);
             Controls.Add(exportBtn);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
@@ -107,8 +80,6 @@
         #endregion
         private Button exportBtn;
         private ProgressBar exportProgressBar;
-        private RadioButton radioExportWithMatch;
-        private RadioButton radioExportWithoutMatch;
-        private RadioButton radioExportAll;
+        private CheckBox checkboxExportUnknownGuid;
     }
 }
