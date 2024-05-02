@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaypointGen", "WaypointGen\WaypointGen.csproj", "{67427049-CDFD-45CF-98E4-A5B945615453}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67427049-CDFD-45CF-98E4-A5B945615453}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67427049-CDFD-45CF-98E4-A5B945615453}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67427049-CDFD-45CF-98E4-A5B945615453}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67427049-CDFD-45CF-98E4-A5B945615453}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D12433F-46BC-4605-9F89-2877609E4291}
+	EndGlobalSection
+EndGlobal
